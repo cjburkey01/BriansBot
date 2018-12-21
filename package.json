@@ -1,0 +1,20 @@
+{
+    "name": "briansbot",
+    "version": "0.0.1",
+    "description": "A Discord bot",
+    "main": "index.js",
+    "scripts": {
+        "start": "node bot.js",
+        "start-dev": "nodemon bot.js"
+    },
+    "author": "CJ Burkey",
+    "license": "MIT",
+    "dependencies": {
+        "discord.io": "github:woor/discord.io#gateway_v6",
+        "imgur": "^0.3.1",
+        "node": "^11.4.0"
+    },
+    "devDependencies": {
+        "nodemon": "^1.18.9"
+    }
+}

@@ -1,0 +1,11 @@
+# Node
+_auth.json
+node_modules/
+pack-lock.json
+
+# Mac
+*.DS_Store
+*/__MACOSX/
+
+# Windows
+*/Thumbs.db
