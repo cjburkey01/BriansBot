@@ -47,7 +47,7 @@ const commands = {
                     (bot, channelId, msg, msgId) => {
                 imgur.search(query, options).then(data => {
                     if (!data || !data.hasOwnProperty('data') || !data.data ||
-                            data.data.length < 1) {
+                            data.data.length < 1 || !data.data[0].link) {
                         bot.editMessage({
                             channelID: channelId,
                             messageID: msgId,
@@ -69,6 +69,122 @@ const commands = {
                         message: 'An error occurred while requesting an image '
                                 + 'from the ImgurAPI, please try again later.',
                     });
+                });
+            });
+        },
+    },
+    'pornhub': {
+        description: 'Search via the PornHub API',
+        parameters: {
+            required: 1,
+            possible: [
+                'Search Term Including Spaces',
+            ],
+            unlimited: true,
+        },
+        callback: (bot, user, userId, channelId, cmd, e, arguments) => {
+            let j = arguments.join(' ');
+            msg(bot, channelId, 'Loading video search results...',
+                    (bot, channelId, msg, msgId) => {
+                request(`http://www.pornhub.com/webmasters/search`
+                            + `?search=${encodeURI(j)}`
+                            + `&ordering=featured`
+                            + `&thumbsize=large_hd`, (error, response, body) => {
+                    if (error) {
+                        bot.editMessage({
+                            channelID: channelId,
+                            messageID: msgId,
+                            message: 'An error occurred while accessing the '
+                                    + 'PornHub API',
+                        });
+                    } else {
+                        let data = JSON.parse(body.toString());
+                        if (!data || !data.hasOwnProperty('videos')
+                                || !data.videos || data.videos.length < 1
+                                || !data.videos[0].url) {
+                            bot.editMessage({
+                                channelID: channelId,
+                                messageID: msgId,
+                                message: 'No videos found with those search '
+                                        + 'terms. Please try again with a '
+                                        + 'more general query.',
+                            });
+                        } else {
+                            bot.deleteMessage({
+                                channelID: channelId,
+                                messageID: msgId,
+                            });
+                            bot.sendMessage({
+                                to: channelId,
+                                embed: {
+                                    title: `Pornhub: "${data.videos[0].title}"`,
+                                    description: data.videos[0].description,
+                                    image: {
+                                        url: data.videos[0].thumb,
+                                    },
+                                    url: data.videos[0].url,
+                                },
+                            });
+                        }
+                    }
+                });
+            });
+        },
+    },
+    'pornhubstar': {
+        description: 'Search pornstars\' videos via the PornHub API',
+        parameters: {
+            required: 1,
+            possible: [
+                'Name Including Spaces',
+            ],
+            unlimited: true,
+        },
+        callback: (bot, user, userId, channelId, cmd, e, arguments) => {
+            let j = arguments.join(' ');
+            msg(bot, channelId, 'Loading pornstar videos...',
+                    (bot, channelId, msg, msgId) => {
+                request(`http://www.pornhub.com/webmasters/search`
+                            + `?stars[]=${encodeURI(j)}`
+                            + `&ordering=featured`
+                            + `&thumbsize=large_hd`, (error, response, body) => {
+                    if (error) {
+                        bot.editMessage({
+                            channelID: channelId,
+                            messageID: msgId,
+                            message: 'An error occurred while accessing the '
+                                    + 'PornHub API',
+                        });
+                    } else {
+                        let data = JSON.parse(body.toString());
+                        if (!data || !data.hasOwnProperty('videos')
+                                || !data.videos || data.videos.length < 1
+                                || !data.videos[0].url) {
+                            bot.editMessage({
+                                channelID: channelId,
+                                messageID: msgId,
+                                message: 'No videos found with that pornstar'
+                                        + '. Please try again with a more '
+                                        + 'general query.',
+                            });
+                        } else {
+                            bot.deleteMessage({
+                                channelID: channelId,
+                                messageID: msgId,
+                            });
+                            bot.sendMessage({
+                                to: channelId,
+                                embed: {
+                                    title: `Pornhub: "${data.videos[0].title}"`,
+                                    description: data.videos[0].description,
+                                    image: {
+                                        url: data.videos[0].thumb,
+                                    },
+                                    url: data.videos[0].url,
+                                },
+                            });
+                        }
+                    }
                 });
             });
         },
