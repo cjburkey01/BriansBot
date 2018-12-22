@@ -56,7 +56,7 @@ const commands = {
                                     + `search query of \` ${query} \``,
                         });
                     } else {
-                        let id = random.int(min = 0, max = data.data.length);
+                        let id = random.int(min = 0, max = data.data.length - 1);
                         bot.editMessage({
                             channelID: channelId,
                             messageID: msgId,
@@ -92,7 +92,8 @@ const commands = {
                 request(`http://www.pornhub.com/webmasters/search`
                             + `?search=${encodeURI(j)}`
                             + `&ordering=featured`
-                            + `&thumbsize=large_hd`, (error, response, body) => {
+                            + `&thumbsize=large_hd`,
+                            (error, response, body) => {
                     if (error) {
                         bot.editMessage({
                             channelID: channelId,
@@ -113,7 +114,7 @@ const commands = {
                             });
                         } else {
                             let id = random.int(min = 0,
-                                    max = data.videos.length);
+                                    max = data.videos.length - 1);
                             bot.deleteMessage({
                                 channelID: channelId,
                                 messageID: msgId,
@@ -121,7 +122,8 @@ const commands = {
                             bot.sendMessage({
                                 to: channelId,
                                 embed: {
-                                    title: `Pornhub: "${data.videos[id].title}"`,
+                                    title: `Pornhub: `
+                                            + `"${data.videos[id].title}"`,
                                     description: data.videos[id].description,
                                     image: {
                                         url: data.videos[id].thumb,
@@ -152,7 +154,8 @@ const commands = {
                 request(`http://www.pornhub.com/webmasters/search`
                             + `?stars[]=${encodeURI(j)}`
                             + `&ordering=featured`
-                            + `&thumbsize=large_hd`, (error, response, body) => {
+                            + `&thumbsize=large_hd`,
+                            (error, response, body) => {
                     if (error) {
                         bot.editMessage({
                             channelID: channelId,
@@ -173,7 +176,7 @@ const commands = {
                             });
                         } else {
                             let id = random.int(min = 0,
-                                    max = data.videos.length);
+                                    max = data.videos.length - 1);
                             bot.deleteMessage({
                                 channelID: channelId,
                                 messageID: msgId,
@@ -181,7 +184,8 @@ const commands = {
                             bot.sendMessage({
                                 to: channelId,
                                 embed: {
-                                    title: `Pornhub: "${data.videos[id].title}"`,
+                                    title: `Pornhub: `
+                                            + `"${data.videos[id].title}"`,
                                     description: data.videos[id].description,
                                     image: {
                                         url: data.videos[id].thumb,
