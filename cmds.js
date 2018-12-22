@@ -1,12 +1,13 @@
 const request = require('request').defaults({ encoding: null });
 const imgur = require('imgur');
+const random = require('random');
 
 const auth = require('./_auth.json');
 imgur.setClientId(auth.imgur);
 
 const commands = {
     'ping': {
-        description: 'Send and receive a test message from **BriansBot**',
+        description: 'Send and receive a test message from **LewdBoi**',
         parameters: {
             required: 0,
             possible: [],
@@ -16,7 +17,7 @@ const commands = {
         },
     },
     'credits': {
-        description: 'View credits for the creation of **BriansBot**',
+        description: 'View credits for the creation of **LewdBoi**',
         parameters: {
             required: 0,
             possible: [],
@@ -47,7 +48,7 @@ const commands = {
                     (bot, channelId, msg, msgId) => {
                 imgur.search(query, options).then(data => {
                     if (!data || !data.hasOwnProperty('data') || !data.data ||
-                            data.data.length < 1 || !data.data[0].link) {
+                            data.data.length < 1) {
                         bot.editMessage({
                             channelID: channelId,
                             messageID: msgId,
@@ -55,10 +56,11 @@ const commands = {
                                     + `search query of \` ${query} \``,
                         });
                     } else {
+                        let id = random.int(min = 0, max = data.data.length);
                         bot.editMessage({
                             channelID: channelId,
                             messageID: msgId,
-                            message: data.data[0].link,
+                            message: data.data[id].link,
                         });
                     }
                 }).catch(error => {
@@ -82,6 +84,7 @@ const commands = {
             ],
             unlimited: true,
         },
+        nsfw: true,
         callback: (bot, user, userId, channelId, cmd, e, arguments) => {
             let j = arguments.join(' ');
             msg(bot, channelId, 'Loading video search results...',
@@ -100,8 +103,7 @@ const commands = {
                     } else {
                         let data = JSON.parse(body.toString());
                         if (!data || !data.hasOwnProperty('videos')
-                                || !data.videos || data.videos.length < 1
-                                || !data.videos[0].url) {
+                                || !data.videos || data.videos.length < 1) {
                             bot.editMessage({
                                 channelID: channelId,
                                 messageID: msgId,
@@ -110,6 +112,8 @@ const commands = {
                                         + 'more general query.',
                             });
                         } else {
+                            let id = random.int(min = 0,
+                                    max = data.videos.length);
                             bot.deleteMessage({
                                 channelID: channelId,
                                 messageID: msgId,
@@ -117,12 +121,12 @@ const commands = {
                             bot.sendMessage({
                                 to: channelId,
                                 embed: {
-                                    title: `Pornhub: "${data.videos[0].title}"`,
-                                    description: data.videos[0].description,
+                                    title: `Pornhub: "${data.videos[id].title}"`,
+                                    description: data.videos[id].description,
                                     image: {
-                                        url: data.videos[0].thumb,
+                                        url: data.videos[id].thumb,
                                     },
-                                    url: data.videos[0].url,
+                                    url: data.videos[id].url,
                                 },
                             });
                         }
@@ -140,6 +144,7 @@ const commands = {
             ],
             unlimited: true,
         },
+        nsfw: true,
         callback: (bot, user, userId, channelId, cmd, e, arguments) => {
             let j = arguments.join(' ');
             msg(bot, channelId, 'Loading pornstar videos...',
@@ -158,8 +163,7 @@ const commands = {
                     } else {
                         let data = JSON.parse(body.toString());
                         if (!data || !data.hasOwnProperty('videos')
-                                || !data.videos || data.videos.length < 1
-                                || !data.videos[0].url) {
+                                || !data.videos || data.videos.length < 1) {
                             bot.editMessage({
                                 channelID: channelId,
                                 messageID: msgId,
@@ -168,6 +172,8 @@ const commands = {
                                         + 'general query.',
                             });
                         } else {
+                            let id = random.int(min = 0,
+                                    max = data.videos.length);
                             bot.deleteMessage({
                                 channelID: channelId,
                                 messageID: msgId,
@@ -175,12 +181,12 @@ const commands = {
                             bot.sendMessage({
                                 to: channelId,
                                 embed: {
-                                    title: `Pornhub: "${data.videos[0].title}"`,
-                                    description: data.videos[0].description,
+                                    title: `Pornhub: "${data.videos[id].title}"`,
+                                    description: data.videos[id].description,
                                     image: {
-                                        url: data.videos[0].thumb,
+                                        url: data.videos[id].thumb,
                                     },
-                                    url: data.videos[0].url,
+                                    url: data.videos[id].url,
                                 },
                             });
                         }
@@ -201,7 +207,7 @@ const commands = {
         callback: (bot, user, userId, channelId, cmd, e, arguments) => {
             if (arguments.length === 0) {
                 let output = 'Here is a handy-dandy list of all commands '
-                        + 'currently implemented for **BriansBot**:\n';
+                        + 'currently implemented for **LewdBoi**:\n';
                 Object.keys(commands).forEach(commandName => {
                     output += `- \` ${getUsageString(commandName)} \`\n`;
                 });
@@ -245,6 +251,14 @@ function onCommand(bot, user, userId, channelId, cmd, e) {
         if (commandName.toLowerCase() === tokens[0].toLowerCase()) {
             invalidCommand = false;
             let arguments = tokens.slice(1);
+            if (commands[commandName].hasOwnProperty('nsfw')
+                    && commands[commandName].nsfw
+                    && (!bot.channels[channelId].hasOwnProperty('nsfw')
+                    || !bot.channels[channelId].nsfw)) {
+                msg(bot, channelId, `The \` //${commandName} \` command cannot `
+                        + `be used outside of an NSFW channel`);
+                return;
+            }
             if (verifyCommandArgs(commands[commandName], arguments)) {
                 commands[commandName].callback(bot, user, userId, channelId,
                         cmd, e, arguments);
@@ -274,8 +288,8 @@ function getUsageString(command) {
 function verifyCommandArgs(command, arguments) {
     return ((arguments.length >= command.parameters.required)
             && ((arguments.length <= command.parameters.possible.length)
-                    || ((command.parameters.hasOwnProperty('unlimited'))
-                            && (command.parameters.unlimited))));
+            || ((command.parameters.hasOwnProperty('unlimited'))
+            && (command.parameters.unlimited))));
 }
 
 function msgInvalidCommand(bot, channelId, command) {
